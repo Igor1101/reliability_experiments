@@ -8,8 +8,10 @@
 #include "defs.h"
 
 constexpr int amount_of_ints = 10;
-double gamma;
+double gamm;
 QString fname;
+double time_Pfail;
+double time_Ifail;
 double avg2(QList<int> const& v);
 
 class Task : public QObject
@@ -37,15 +39,21 @@ int main(int argc, char *argv[])
 #else
 
 #endif
-    if( argc != 3) {
+    if( argc != 5) {
         QINFO << UKR("некоректний аргумент");
         return -1;
     }
     if(argc >=2) {
-        fname = std::stod(argv[1]);
+        fname = QString(argv[1]);
     }
     if(argc >= 3) {
-        gamma = std::stod(argv[2]);
+        gamm = std::stod(argv[2]);
+    }
+    if(argc >= 4) {
+        time_Pfail = std::stod(argv[3]);
+    }
+    if(argc >= 5) {
+        time_Ifail = std::stod(argv[4]);
     }
     // make QT ignore args
     argc = 1;
@@ -70,7 +78,7 @@ void Task::run()
     // get sampling to failure
     QFile file(fname);
     if (!file.open(QIODevice::ReadOnly)) {
-        QDEB << UKR("не можу відкрити файл");
+        QDEB << UKR("не можу відкрити файл ") << fname;
         QDEB << file.errorString();
         emit finished();
         return;
@@ -89,17 +97,16 @@ void Task::run()
 
     // average operating time to failure
     average = avg2(lwords);
-    QINFO << UKR("середнє на відмову:") << average;
+    QINFO << UKR("середнє на відмову:Tcp=") << average;
     // sort sampling:
     std::sort(lwords.begin(), lwords.end());
-
     for(int i=0 ; i < lwords.length() ; i++)
         QDEB << lwords.at(i);
     // find max one, get size of interval
     static double intr_sz = lwords.last() / amount_of_ints;
     // statistical density of distribution
-    static double f[amount_of_ints];
-    for(int intri = 0; intri < amount_of_ints; intri++) {
+    static double f[amount_of_ints] = { 0 };
+    for(int intri = 1; intri <= amount_of_ints; intri++) {
         int Ni = 0;
         double intrmin = intr_sz * (intri - 1);
         double intrmax = intr_sz * intri;
@@ -113,17 +120,44 @@ void Task::run()
         QDEB << UKR("інтервал") << intri << UKR("статистична щільність розподілу") << f[intri];
     };
     // probability of trouble-free operation
-    static double P[amount_of_ints];
+    static double P[amount_of_ints] = { 1.0 };
     // S = fi * h - probability of the trouble
-    // P = 1 - S -- probability of trouble-free
-    for(int i=0; i < amount_of_ints; i++) {
-        P[i] = 1 - f[i] * intr_sz;
+    // P =  S -- probability of trouble-free
+    int gamma_p;
+    for(int i=1; i <= amount_of_ints; i++) {
+        P[i] = f[i] * intr_sz;
         QDEB << UKR("інтервал") << i << UKR("Ймовірність безвідмовної роботи") << P[i];
+        if(P[i-1] > gamm && P[i] <= gamm ) {
+            gamma_p = i;
+        }
     }
     // calc operating time to failure
-    double d01 = (P[0] - gamma) / (P[0] - P[1]);
-    double Ty = 0 + intr_sz * d01;
-    QDEB << UKR("наробіток на відмову:") << Ty;
+    double d = (P[gamma_p-1] - gamm) / (P[gamma_p-1] - P[gamma_p]);
+    QDEB << UKR("d:") << d;
+    double Ty = f[gamma_p-1] + intr_sz * d;
+    QINFO << UKR("y-відсотковий наробіток на відмову:") << Ty;
+    // probability of trouble-free operation
+    double Ptf = 1.0;
+    int i = 1;
+    while ((i * intr_sz) <= time_Pfail) {
+        Ptf -= f[i] * intr_sz;
+        i++;
+    }
+    Ptf -= f[i] * (time_Pfail - (i - 1) * intr_sz);
+    // sec time calc for another timeex 1
+
+    double Ptf2 = 1.0;
+    i = 1;
+    while ((i * intr_sz) <= time_Ifail ) {
+        Ptf2 -= f[i] * intr_sz;
+        i++;
+    }
+    Ptf2 -= f[i] * (time_Ifail - (i - 1) * intr_sz);
+
+    double lambda = f[i] / Ptf2;
+    QINFO << UKR("ймовірність безвідмовної роботи:") << Ptf << UKR(" на час:") << time_Pfail;
+    QINFO << UKR("інтенсивність відмов:") << lambda << UKR(" на час:") << time_Ifail;
+
     emit finished();
 }
 
