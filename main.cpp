@@ -92,16 +92,16 @@ void Task::run()
             lwords.append(l.toInt());
         }
     }
-    for(int i=0 ; i < lwords.length() ; i++)
-        QDEB << lwords.at(i);
+    //for(int i=0 ; i < lwords.length() ; i++)
+    //    QDEB << lwords.at(i);
 
     // average operating time to failure
     average = avg2(lwords);
     QINFO << UKR("середнє на відмову:Tcp=") << average;
     // sort sampling:
     std::sort(lwords.begin(), lwords.end());
-    for(int i=0 ; i < lwords.length() ; i++)
-        QDEB << lwords.at(i);
+   // for(int i=0 ; i < lwords.length() ; i++)
+    //    QDEB << lwords.at(i);
     // find max one, get size of interval
     static double intr_sz = lwords.last() / amount_of_ints;
     // statistical density of distribution
@@ -117,7 +117,7 @@ void Task::run()
             }
         }
         f[intri] = Ni / (lwords.length() * intr_sz);
-        QDEB << UKR("інтервал") << intri << UKR("статистична щільність розподілу") << f[intri];
+        //QDEB << UKR("інтервал") << intri << UKR("статистична щільність розподілу") << f[intri];
     };
     // probability of trouble-free operation
     static double P[amount_of_ints] = { 1.0 };
@@ -126,14 +126,13 @@ void Task::run()
     int gamma_p;
     for(int i=1; i <= amount_of_ints; i++) {
         P[i] = f[i] * intr_sz;
-        QDEB << UKR("інтервал") << i << UKR("Ймовірність безвідмовної роботи") << P[i];
+     //   QDEB << UKR("інтервал") << i << UKR("Ймовірність безвідмовної роботи") << P[i];
         if(P[i-1] > gamm && P[i] <= gamm ) {
             gamma_p = i;
         }
     }
     // calc operating time to failure
     double d = (P[gamma_p-1] - gamm) / (P[gamma_p-1] - P[gamma_p]);
-    QDEB << UKR("d:") << d;
     double Ty = f[gamma_p-1] + intr_sz * d;
     QINFO << UKR("y-відсотковий наробіток на відмову:") << Ty;
     // probability of trouble-free operation
