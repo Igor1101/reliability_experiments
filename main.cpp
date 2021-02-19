@@ -92,6 +92,11 @@ void Task::run()
             lwords.append(l.toInt());
         }
     }
+    // verify empty data
+    if(lwords.length()  == 0) {
+       QINFO << UKR("пустий файл");
+        emit finished();
+    }
     //for(int i=0 ; i < lwords.length() ; i++)
     //    QDEB << lwords.at(i);
 
