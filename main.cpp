@@ -97,6 +97,10 @@ void Task::run()
        QINFO << UKR("пустий файл");
         emit finished();
     }
+    if(gamm > 1.0 || gamm < 0.0) {
+        QINFO << UKR("gamma invalid");
+        emit finished();
+    }
     //for(int i=0 ; i < lwords.length() ; i++)
     //    QDEB << lwords.at(i);
 
@@ -147,6 +151,7 @@ void Task::run()
         if(i > amount_of_ints) {
             QINFO << UKR("помилка в значенні time_Pfail(час для ймовірності безвідмовної роботи)");
             emit finished();
+            return ;
         }
         Ptf -= f[i] * intr_sz;
         i++;
@@ -160,6 +165,7 @@ void Task::run()
         if(i > amount_of_ints) {
             QINFO << UKR("помилка в значенні time_Ifail(час для інтенсивності відмов)");
             emit finished();
+            return ;
         }
         Ptf2 -= f[i] * intr_sz;
         i++;
