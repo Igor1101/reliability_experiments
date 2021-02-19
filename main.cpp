@@ -100,6 +100,7 @@ void Task::run()
     if(gamm > 1.0 || gamm < 0.0) {
         QINFO << UKR("gamma invalid");
         emit finished();
+        return;
     }
     //for(int i=0 ; i < lwords.length() ; i++)
     //    QDEB << lwords.at(i);
