@@ -139,6 +139,10 @@ void Task::run()
     double Ptf = 1.0;
     int i = 1;
     while ((i * intr_sz) <= time_Pfail) {
+        if(i > amount_of_ints) {
+            QINFO << UKR("помилка в значенні time_Pfail(час для ймовірності безвідмовної роботи)");
+            emit finished();
+        }
         Ptf -= f[i] * intr_sz;
         i++;
     }
@@ -148,6 +152,10 @@ void Task::run()
     double Ptf2 = 1.0;
     i = 1;
     while ((i * intr_sz) <= time_Ifail ) {
+        if(i > amount_of_ints) {
+            QINFO << UKR("помилка в значенні time_Ifail(час для інтенсивності відмов)");
+            emit finished();
+        }
         Ptf2 -= f[i] * intr_sz;
         i++;
     }
