@@ -127,7 +127,7 @@ void Task::run()
             }
         }
         f[intri] = Ni / (lwords.length() * intr_sz);
-        //QDEB << UKR("інтервал") << intri << UKR("статистична щільність розподілу") << f[intri];
+        QDEB << UKR("інтервал") << intri << UKR("статистична щільність розподілу") << f[intri];
     };
     // probability of trouble-free operation
     static double P[amount_of_ints] = { 1.0 };
@@ -136,14 +136,14 @@ void Task::run()
     int gamma_p;
     for(int i=1; i <= amount_of_ints; i++) {
         P[i] = f[i] * intr_sz;
-     //   QDEB << UKR("інтервал") << i << UKR("Ймовірність безвідмовної роботи") << P[i];
+        QDEB << UKR("інтервал") << i << UKR("Ймовірність безвідмовної роботи") << P[i];
         if(P[i-1] > gamm && P[i] <= gamm ) {
             gamma_p = i;
         }
     }
     // calc operating time to failure
-    double d = (P[gamma_p-1] - gamm) / (P[gamma_p-1] - P[gamma_p]);
-    double Ty = f[gamma_p-1] + intr_sz * d;
+    double d = (P[gamma_p] - gamm) / (P[gamma_p] - P[gamma_p-1]);
+    double Ty = f[gamma_p] - intr_sz * d;
     QINFO << UKR("y-відсотковий наробіток на відмову:") << Ty;
     // probability of trouble-free operation
     double Ptf = 1.0;
