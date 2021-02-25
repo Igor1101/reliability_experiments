@@ -134,8 +134,10 @@ void Task::run()
     // S = fi * h - probability of the trouble
     // P =  S -- probability of trouble-free
     int gamma_p;
+    double pmax = 1.0;
     for(int i=1; i <= amount_of_ints; i++) {
-        P[i] = f[i] * intr_sz;
+        pmax -= f[i] * intr_sz;
+        P[i] = pmax;
         QDEB << UKR("інтервал") << i << UKR("Ймовірність безвідмовної роботи") << P[i];
         if(P[i-1] > gamm && P[i] <= gamm ) {
             gamma_p = i;
@@ -143,7 +145,7 @@ void Task::run()
     }
     // calc operating time to failure
     double d = (P[gamma_p] - gamm) / (P[gamma_p] - P[gamma_p-1]);
-    double Ty = f[gamma_p] - intr_sz * d;
+    double Ty = intr_sz - intr_sz * d;
     QINFO << UKR("y-відсотковий наробіток на відмову:") << Ty;
     // probability of trouble-free operation
     double Ptf = 1.0;
