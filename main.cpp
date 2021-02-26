@@ -145,7 +145,8 @@ void Task::run()
     }
     // calc operating time to failure
     double d = (P[gamma_p] - gamm) / (P[gamma_p] - P[gamma_p-1]);
-    double Ty = intr_sz - intr_sz * d;
+    QINFO << "d="<< d;
+    double Ty = gamma_p * intr_sz - intr_sz * d;
     QINFO << UKR("y-відсотковий наробіток на відмову:") << Ty;
     // probability of trouble-free operation
     double Ptf = 1.0;
