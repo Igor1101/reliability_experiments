@@ -110,8 +110,9 @@ void Task::run()
     QINFO << UKR("середнє на відмову:Tcp=") << average;
     // sort sampling:
     std::sort(lwords.begin(), lwords.end());
-   // for(int i=0 ; i < lwords.length() ; i++)
-    //    QDEB << lwords.at(i);
+    QINFO << UKR("відсортовано:");
+    for(int i=0 ; i < lwords.length() ; i++)
+        QDEB << lwords.at(i);
     // find max one, get size of interval
     static double intr_sz = lwords.last() / amount_of_ints;
     // statistical density of distribution
